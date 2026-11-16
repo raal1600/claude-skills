@@ -96,6 +96,10 @@ until asked for.
 
 Questions to ask: Could a new user say what each screen is for in one sentence? Is anything on screen twice?
 
+For how to lay this out and what to check before calling a screen done (levels instead of one long page,
+navigation by width, lists before tables, inspectors, popovers and sheets, selection and scrubbing), load the
+`apple-interfaces` skill.
+
 ## 6. How to build
 
 1. **Understand, then plan.** Read the relevant code and data. For anything beyond a small fix, write the plan: the
