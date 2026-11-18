@@ -1,6 +1,6 @@
 ---
 name: build-patterns
-description: How to design, build and ship software with an owner so the first version is the right one. One vocabulary from the first file; status derived from stored facts; a record for every run; data changes that never break running code; the app-level defaults every tool needs; and a way of working that shows one real screen before building many, decides what the skills settle and asks the owner only what is theirs, verifies by measurement and an independent reviewer, and asks before anything is published. Load before planning, designing, building, changing or reviewing a feature, data model, automation or interface, in any project. Companions: apple-interfaces (how screens look and work) and helper-sessions (splitting work across helpers).
+description: How to design, build and ship software with an owner so the first version is the right one. One vocabulary from the first file; status derived from stored facts; a record for every run; data changes that never break running code; what is kept and how it is removed; the app-level defaults every tool needs; and a way of working that shows one real screen before building many, decides what the skills settle and asks the owner only what is theirs, verifies by measurement and an independent reviewer, and asks before anything is published. Load before planning, designing, building, changing or reviewing a feature, data model, automation or interface, in any project. Companions: apple-interfaces (how screens look and work) and helper-sessions (splitting work across helpers).
 ---
 
 # Build patterns
@@ -50,32 +50,44 @@ A run nobody can see failing is the commonest silent bug, and the most expensive
   code, job and run history.
 - **Code decides what is deterministic;** a model or a person only where judgment is needed, validated before use.
 - **Respect decisions.** Automation never overwrites what a person acted on.
-- **Probe the outside world first.** Before automating against a system you don't control, read the real thing once
-  and keep what you saw as test fixtures. A stand-in you invented passes tests the real one fails.
+- **Probe the outside world in each of its states.** Before automating against a system you don't control, read the
+  real thing in every state it has (busy and quiet, open and closed, empty and full) and keep what you saw as
+  fixtures. A fix tested only on a stand-in is unproven: say so in the first line of its report, with when the real
+  test can happen.
 - **Budget time and credentials.** Work inside an expiring session reads only what its purpose needs and reports as
   it goes, so failing at step N costs only step N. A credential outlives the longest run and does one thing.
 
 Questions: Stop a run halfway: what does the user see, and where? Was every guard tested on real input?
 
-## 4. A minimal data model that changes safely
+## 4. A minimal data model: how it changes and how it ends
 
 - **As few tables as the planned screens need,** judged against the plan, not against today's screens. Anything a
   person manages (a key, an account, a run) keeps its name, when it was created, when last used, and its status.
-- **Keep every version.** Inputs and snapshots are immutable and kept. The newest is shown; earlier ones stay one
-  step away. Overwriting destroys the history that comparisons and audits need.
+- **Keep every version until the owner removes it.** Inputs and snapshots are immutable. The newest is shown;
+  earlier ones stay one step away. Kept is not undeletable.
+- **Plan how every record ends.** For each kind of stored thing write down who creates it, who reads it, and how it
+  leaves: the user deletes it, a job removes it, or it goes with its parent; and what goes with it and what stays.
+  Anything the user can see, they can remove, history and logs included, unless a stated rule keeps it and the
+  screen says why. Deleting is recorded where the user expects to see it, and the record can be cleared too.
+- **Nothing stored without a use.** Every field has a writer and a reader, every permission a caller, and every
+  table that automation grows (logs, tokens, run history) a retention rule and a job that keeps it, with a test.
+- **Test data stays out of the live store,** or carries a marker and a removal path from day one, apart from
+  anything a person typed.
 - **Stored values use the vocabulary.**
 - **One narrow write path.** Constraints and a few authorised operations enforce the lifecycle; no client can
   bypass them.
 - **Change in two steps:** add the new shape while the old still works, deploy the code that uses it, remove the
   old in a later change. Release order is then always "store, then code", and nothing destructive ships with a
   behaviour change.
-- **Rehearse** each change on a disposable copy with realistic rows, and check the before/after mapping.
+- **Rehearse on a proven copy:** a disposable copy shown identical to live (compare a fingerprint of the structure),
+  with realistic rows; check the before/after mapping, then confirm that what was applied live is byte-identical to
+  what was reviewed. Every copy of a contract (schema, validation, generated types) ships in the same release.
 - **Write down what lives outside the code:** limits, secrets, platform settings, scheduled jobs, security
   policies. Say how each is set, who sets it and how it is checked. Deploy from the repository by script.
 - **No secrets in data or files.**
 
-Questions: Could this change be released before or after the code without breaking either? What does the
-environment need that the repository doesn't hold?
+Questions: Could this change be released before or after the code without breaking either? For each stored thing,
+who removes it, and how?
 
 ## 5. Calm interfaces, complete from the first version
 
@@ -83,8 +95,9 @@ An interface shows where things are and what needs the user, and lets them decid
 is in apple-interfaces; these are the principles.
 
 - **An app is more than its screens.** From the first version it has the defaults people expect: a sidebar of
-  places, an account area with sign-out, a current item that changes every page, empty and waiting states, a
-  visible record of runs, and live updates. Users notice missing defaults first.
+  places, an account area with sign-out, a current item that changes every page, empty and waiting states on the
+  page (never in navigation), a record of runs the user can clear, a way to delete what they made, live updates,
+  and pages that pick up a new version by themselves. Users notice missing defaults first.
 - **One pattern, used everywhere; say it once; one primary action per view.**
 - **Badges mean "this waits on you"** and nothing else.
 - **Subtract first.** Before adding, decide what it replaces.
@@ -95,28 +108,32 @@ Questions: Which default would a user look for and not find? Is anything on scre
 
 ## 6. Working with the owner
 
-1. **Plan on one page, in plain words.** The words, the model change, the runs, the screens as what the user must
-   find out or do (not a layout), how it will be verified, and the steps only the owner can do (accounts, sign-ins,
-   limits, keys), asked for as one batch. Get a yes before building.
+1. **Plan on one page, in plain words.** The words; each stored thing with who writes it, who reads it and how it
+   ends; the runs; the screens as what the user must find out or do (not a layout), with what each says when empty
+   and how it stays current without a reload; how it will be verified; and the steps only the owner can do
+   (accounts, sign-ins, limits, keys), asked for as one batch. Get a yes before building.
 2. **Decide what is yours; ask what is theirs.** Ask the owner only about money, access and secrets, publishing,
    deleting, taste on something they have seen, and changes to how they asked the work to be done. Settle the rest
-   by these skills or a stated default, said in one line so it can be overruled. A question says what each choice
-   looks like to the owner and marks your recommendation. Check that a choice is possible before asking its cost.
+   by these skills or a stated default, said in one line so it can be overruled. A question names each choice by
+   what it does for the owner, never by its stored name, and marks your recommendation; if someone outside the field
+   would ask "what is this for?", rewrite it before asking. Check that a choice is possible before asking its cost.
 3. **Show one real thing early.** Build one screen or slice end to end, on sample data that shows every state
-   (apple-interfaces §7). Show it, get a yes, then build the rest from it. A plan or a checklist cannot stand in for
-   the owner's eye.
+   (apple-interfaces §8). Show it, get a yes, then build the rest from it. A new kind of control or interaction
+   counts as a new screen. A plan or a checklist cannot stand in for the owner's eye.
 4. **Verify by measurement,** matched to the change:
    - tests for the rules, a test that fails on old words, tests that pin behaviour rather than exact sentences;
    - for screens, the measured check in apple-interfaces, then a reviewer who wrote none of the code;
-   - a flaky test is a failing test: fix the cause the day it shows;
+   - a flaky test or a reading that differs between runs is a failure: find the cause the day it shows; a rerun is
+     not a fix;
    - list at plan time what only the live system shows (headers and policies, scheduled jobs, live connections,
      sign-in), and check each, signed in, right after release;
    - a test-and-fix loop gets its stopping rule before it starts.
 5. **Ship only with a yes.** Anything that reaches users, spends money or deletes needs the owner's yes in words; a
-   plan to ship is not a yes. Merging into an unreleased branch needs none. Each release says what is live and
+   plan to ship is not a yes. Where merging is the step before a release, ask once for both. Each release says what is live and
    what isn't.
-6. **Report in four short parts:** done; not done or not verified; what waits on the owner; how long the rest
-   takes. Nothing when nothing changed. Long evidence goes in a file.
+6. **Report in four short parts:** done; not done or not verified; what waits on the owner; the next step and when.
+   A deliverable outside the repository says where it lives and whether it is published. Nothing when nothing
+   changed. Long evidence goes in a file.
 
 ## 7. Safety first
 

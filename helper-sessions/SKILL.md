@@ -33,13 +33,16 @@ Question: Which file or surface would two helpers both need to change?
 
 A helper knows only its brief. A good one names:
 
-- the outcome, in a sentence, and the approved example or reference to match; never a layout nobody has seen;
+- the outcome, in a sentence, and the approved example or reference to match; never a layout nobody has seen, and
+  never an "either … or" design choice: decide it, or ask the owner first;
 - the files it alone owns, and what not to touch because others are editing it;
 - what it may change in shared pieces without asking: additive, backward-compatible, tested against every user,
   listed in its PR;
 - who answers its questions: the coordinator, never the project owner, unless the question is about taste, money
   or access;
-- measurable checks to run, and what to report: done, verified, not verified;
+- the checks the repository requires for every branch, documentation-only ones included, and what to report:
+  done, verified, not verified; evidence such as screenshots goes beside the work, never into the branch that
+  merges;
 - to save, push and leave a hand-over note (state, next step, open questions) at each milestone and on any stop.
 
 Long specs and standing rules go in a file every helper reads, not into each brief.
@@ -63,7 +66,9 @@ Question: Has the combination been tested, or only each piece alone?
   only for work that builds on nothing earlier.
 - **Size parallel work to the remaining allowance.** Read it before starting more than two helpers, say a rough cost
   in plain words, and use a cheaper model for mechanical reading or edits. A limit stops every helper at once.
-- **Keep the coordinating thread thin.** Hand off at a planned point, not at the limit. Keep open items, decisions and
+- **Keep the coordinating thread thin.** The coordinator plans, briefs, reviews, merges and reports; any change
+  bigger than a line goes to a helper, which starts small instead of re-reading the whole thread. Hand off at a
+  planned point, not at the limit. Keep open items, decisions and
   standing rules in one file, so a restart or a summary loses nothing. Answer a side question in a fresh session with
   a short facts file, not in a copy of the whole thread.
 

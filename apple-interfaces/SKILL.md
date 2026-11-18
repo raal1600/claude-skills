@@ -1,6 +1,6 @@
 ---
 name: apple-interfaces
-description: How to lay out, build and check a user interface so it works and looks the way Apple's own apps do, complete from the first version. The app shell (a sidebar of places, an account area, a toolbar), content in levels (summary, list, detail), a split view on wide screens and a navigation stack on a phone, lists before tables, details in an inspector, popover or sheet, a current item that changes every page, visible runs, the right control for each choice, and a measured check before a screen is called done. Load before designing, building or reviewing any user interface, in any project, web or native. Companion to build-patterns, which says why and what.
+description: How to lay out, build and check a user interface so it works and looks the way Apple's own apps do, complete from the first version. The app shell (a sidebar of places, an account area, a toolbar), content in levels (summary, list, detail), a split view on wide screens and a navigation stack on a phone, lists before tables, details in an inspector, popover or sheet, a current item that changes every page, visible runs, removing and clearing with a confirmation that matches the loss, the right control for each choice, and a measured check before a screen is called done. Load before designing, building or reviewing any user interface, in any project, web or native. Companion to build-patterns, which says why and what.
 ---
 
 # Apple-style interfaces: how to build one, and what to check
@@ -37,7 +37,9 @@ steps, "Next" buttons, a breadcrumb or a fixed footer; they say "where you are" 
   - Every row has the same height, icon, hover pill and selected pill: accent when the window is focused, grey when
     it isn't. Group headings fold with a chevron and a small tinted icon tile, and hover like rows.
   - Kinds of rows are separated by a hairline, not by a different row style.
-  - A row carries at most a count, or a badge (build-patterns §5).
+  - A row carries at most a count or a badge, and never empty-state text: with nothing chosen, a row is just its
+    name, and what to do next appears on the page it opens. A section with nothing in it is not drawn. Navigation
+    holds no bulk actions; a row may reveal its own remove control (§6).
   - Secondary sections such as activity fold by default and can be hidden.
   - Dates, history, explanations and "why is this hidden" notes belong on the page or in settings.
   - Search sits at the top. Width, visibility and open sections are remembered.
@@ -60,6 +62,7 @@ hover or highlight differently from the others?
 - **A detail is a label–value list** in short named groups.
 - **A wide table is a sign that a level is missing.** A full table is the deepest level, opened on purpose ("Compare
   all"), never first. Its rows open their item. On a phone it becomes rows with the sorted value.
+- **An empty list says what will fill it,** in one sentence, with the action that does, on the page itself.
 - **Long lists are grouped:** more than about fifty rows become groups that each open their own list.
 
 Questions: Can a row be read in one glance? Is any table the first thing on a screen?
@@ -97,7 +100,23 @@ Questions: Does anything send the user to another page for a fact that fits a po
 
 Questions: Does clicking each thing do something useful in place? Does switching the current item reach every page?
 
-## 6. The visual language: calm, not plain
+## 6. Removing things: the weight matches the loss
+
+- **An entry in a list is removed in place.** With a pointer, a bin replaces the row's trailing value on hover;
+  clicking it slides in a red Delete, and that second click is the confirmation. On a phone, swipe left. From the
+  keyboard, Delete. In the row's menu, Delete comes last. As in Mail.
+- **Work with things attached is deleted through an alert** that names what goes and what stays, with counts
+  ("Delete the album? 214 photos. They stay in your library."), Cancel as the default, Escape to cancel.
+- **Clear-all lives in the full list,** in its bar, and asks once with the counts. Never in navigation.
+- **After a delete the screen moves on by itself:** if the current item went, the newest remaining one becomes
+  current, or the empty state shows; every open view updates.
+- **A storage view says what is kept:** per item, in plain counts and in words what each kind holds, with the same
+  delete actions, as iPhone Storage does.
+- **One picture, one meaning.** An icon used for an action is never also a status mark.
+
+Questions: Can the user remove one entry, and in the full list all of them? Is the confirmation as heavy as the loss?
+
+## 7. The visual language: calm, not plain
 
 - **Type:** the system font, about five sizes, emphasis by weight. Figures use tabular numerals.
 - **Surfaces:** one background, content in rounded groups, hairlines between rows, no box inside a box.
@@ -109,24 +128,29 @@ Questions: Does clicking each thing do something useful in place? Does switching
   these looks like a document.
 - **Controls:** two to four choices are a segmented control, a longer list is a compact pop-up button sized to its
   value, and on/off is a switch. Where the screen already shows the choices as a list or chart, picking there is the
-  choice. Full-width form selects belong only in forms.
+  choice. A value from a known set (a currency, a country, a unit) is chosen, never typed. Full-width form selects
+  belong only in forms.
 - **Targets and focus:** finger-sized on a phone, a visible focus ring everywhere.
 
-## 7. Check before calling a screen done
+## 8. Check before calling a screen done
 
 Measure first, then look. A script over every screen catches what spot checks by eye miss.
 
 - **Run it on sample data that shows every state:** two or more of each switchable item, plus empty, waiting, failed,
   stale and long-text cases.
 - **Run it at three widths and both themes:** phone, the width where the layout switches, and wide; light and dark.
+  Every width a rule names is in the list. Wait for conditions (animations done, data loaded), never for time; a
+  reading that differs between runs fails until explained.
 - **Check the first screen built in a new pattern** against the whole list before any other screen copies it. A
   violation seen there is fixed there, not deferred.
-- **After each wave, someone who wrote none of the code** runs the list and reports measured findings.
+- **After the first wave, and each one after, someone who wrote none of the code** runs the list and reports
+  measured findings.
 
 1. Is the first thing on screen the thing that matters most, within the word limit?
 2. Can every detail be reached without scrolling past the others?
 3. Does clicking anything do something useful in place?
-4. Is any element wider than its box, or past the window's edge, at any width? Inner containers count, not just the page.
+4. Is any element wider than its box, or past the window's edge, at any width? Inner containers count, and so does
+   text that wraps inside a one-line control (a pill, a badge, a button).
 5. Does the hierarchy work as a split view and as a stack, with back going up one level?
 6. Can everything be reached by keyboard in a sensible number of Tab stops, does Escape close what opened, and does
    focus return?
@@ -134,3 +158,4 @@ Measure first, then look. A script over every screen catches what spot checks by
 8. Does every row of each kind share its height, padding, hover and selected style?
 9. Beside a reference app: does yours have more boxes, colours, type sizes or words, or fewer icons, less depth, no
    hero?
+10. Is any value from a known set typed? Does any icon mean two things?
